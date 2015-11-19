@@ -35,8 +35,10 @@
                 <td v-for='day in week'>
                   {{day.day}}<br>
                   <div v-if='day.article && !day.editing'>
+                    <img :src='day.article.profileImageURL' class="pull-left" width='16' height='16'>
                     {{day.article.username}}<br>
-                    <a :href="day.article.url">{{day.article.title}}</a><br>
+                    <a v-if='day.article.url' :href="day.article.url">{{day.article.title}}</a>
+                    <span v-if='!day.article.url'>{{day.article.title}}</span><br>
                     <button class="btn btn-warning" v-if='day.editabled' @click='day.editing = true'>
                       <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                     </button>

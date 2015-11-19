@@ -5,10 +5,24 @@ var project = 'ruby-korea'
 /**
  * Setup firebase sync
  */
-
-var Articles = new Firebase(baseURL + year + '/articles')
-localStorage.setItem("username", "marocchino")
 var username = localStorage.getItem("username")
+var profileImageURL = localStorage.getItem("profileImageURL")
+
+
+if (!username || !profileImageURL) {
+  var ref = new Firebase(baseURL)
+  ref.authWithOAuthPopup("github", function(error, authData) {
+    if (error) {
+      console.log("Login Failed!", error)
+    } else {
+      localStorage.setItem("username", authData.github.username)
+      localStorage.setItem("profileImageURL", authData.github.profileImageURL)
+      app.newArticle.username = authData.github.username
+      app.newArticle.profileImageURL = authData.github.profileImageURL
+    }
+  })
+}
+var Articles = new Firebase(baseURL + year + '/articles')
 
 Articles.on('child_added', function (snapshot) {
   var item = snapshot.val()
@@ -43,6 +57,7 @@ var app = new Vue({
     articles: [],
     newArticle: {
       username: username,
+      profileImageURL: profileImageURL,
       day: 0,
       url: '',
       title: ''
@@ -112,6 +127,11 @@ var app = new Vue({
     },
     removeArticle: function (id) {
       new Firebase(baseURL + year + '/articles/' + id).remove()
+    },
+    logout: function () {
+      localStorage.setItem("username", null)
+      localStorage.setItem("profileImageURL", null)
+      location.reload(true)
     }
   }
 })
