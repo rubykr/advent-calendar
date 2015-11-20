@@ -58,7 +58,7 @@
                     </button>
                   </form>
 
-                  <button class="btn btn-primary" v-if='day.enabled' @click='newArticle.day = day.day'>참가</button>
+                  <button class="btn btn-primary" v-if='newArticle.username && day.enabled' @click='newArticle.day = day.day'>참가</button>
                 </td>
               </tr>
             </tbody>
