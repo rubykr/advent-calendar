@@ -9,19 +9,6 @@ var username = localStorage.getItem("username")
 var profileImageURL = localStorage.getItem("profileImageURL")
 
 
-if (!username || !profileImageURL) {
-  var ref = new Firebase(baseURL)
-  ref.authWithOAuthPopup("github", function(error, authData) {
-    if (error) {
-      console.log("Login Failed!", error)
-    } else {
-      localStorage.setItem("username", authData.github.username)
-      localStorage.setItem("profileImageURL", authData.github.profileImageURL)
-      app.newArticle.username = authData.github.username
-      app.newArticle.profileImageURL = authData.github.profileImageURL
-    }
-  })
-}
 var Articles = new Firebase(baseURL + year + '/articles')
 
 Articles.on('child_added', function (snapshot) {
@@ -128,10 +115,25 @@ var app = new Vue({
     removeArticle: function (id) {
       new Firebase(baseURL + year + '/articles/' + id).remove()
     },
+    login: function () {
+      var ref = new Firebase(baseURL)
+      var that = this;
+      ref.authWithOAuthPopup("github", function(error, authData) {
+        if (error) {
+          console.log("Login Failed!", error)
+        } else {
+          localStorage.setItem("username", authData.github.username)
+          localStorage.setItem("profileImageURL", authData.github.profileImageURL)
+          that.newArticle.username = authData.github.username
+          that.newArticle.profileImageURL = authData.github.profileImageURL
+        }
+      })
+    },
     logout: function () {
-      localStorage.setItem("username", null)
-      localStorage.setItem("profileImageURL", null)
+      localStorage.setItem("username", '')
+      localStorage.setItem("profileImageURL", '')
       location.reload(true)
     }
   }
 })
+$('[data-toggle="tooltip"]').tooltip()

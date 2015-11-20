@@ -18,6 +18,13 @@
       <div class="row">
         <div class="col-md-12">
           <h1>ruby-korea advent calendar 2015</h1>
+          <button class='btn btn-default' v-if='!newArticle.username' @click='login'>login</button>
+          <button class='btn btn-default' v-if='newArticle.username'
+            data-toggle="tooltip" data-placement="bottom" title="로그아웃" @click='logout'>
+            <img :src='newArticle.profileImageURL' class="img-circle" width='20' height='20'>
+            {{newArticle.username}}
+          </button>
+
           <table class="table table-bordered">
             <thead>
               <tr>
