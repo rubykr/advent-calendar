@@ -1,0 +1,77 @@
+@import url(https://fonts.googleapis.com/css?family=Rochester|Coda);
+
+body {
+  font: 16px/18px HelveticaNeue;
+}
+
+#app header {
+  color: #FFFFFF;
+  border-color: #910002;
+  background: url("bg.png") #BC0003 no-repeat bottom right;
+  padding-left: 10px;
+  padding-bottom: 10px;
+}
+#app form {
+  background: #FFFFFF;
+}
+
+#app h1, #app h4 {
+  font-family: 'Rochester', cursive;
+}
+#app h1 {
+  font-size: 69px;
+}
+#app h4 {
+  font-size: 22px;
+}
+#app h4 cide {
+  font-size: 25px;
+  font-family: 'Coda', cursive;
+}
+
+#app table {
+  width:100%;
+  border-color: #910002;
+}
+
+#app th {
+  width:14.3%;
+  color: #FFFFFF;
+  background-color: #910002;
+  border-color: #910002;
+}
+
+#app td {
+  color: #910002;
+  border-color: #910002;
+  background-color: #910002;
+  padding: 0;
+  height: 200px;
+}
+
+#app td.active {
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+#app td.active div {
+  padding: 8px;
+}
+#app td.active input {
+  margin-bottom: 4px;
+}
+
+#app td.active img {
+  margin-right: 8px;
+}
+
+#app td.active .date {
+  color: #FFFFFF;
+  border-color: #910002;
+  background: #BC0003;
+  padding: 4px 8px;
+}
+
+#app td button {
+  width: 100%;
+}

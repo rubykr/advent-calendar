@@ -6,6 +6,7 @@
 
     <!-- Bootstrap core CSS -->
     <link href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="./app.css" rel="stylesheet" media="screen">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -15,87 +16,108 @@
   </head>
   <body>
     <div id="app" class="container">
+      <div class="modal fade" id="newArticle">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h3 class="modal-title">{{newArticle.day}}일의 글</h3>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-5 col-md-offset-2">
+                  <form id="form" class='form form-horizontal'>
+                    <div class="form-group">
+                      <label>제목</label>
+                      <input class="form-control" v-model="newArticle.title" placeholder="미정">
+                    </div>
+                    <ul class="errors">
+                      <li v-show="!validation.title">제목은 꼭 넣어주세요.</li>
+                    </ul>
+                    <div class="form-group">
+                      <label>주소</label>
+                      <input class="form-control" v-model="newArticle.url" placeholder="url: http://example.com">
+                    </div>
+                    <div class="form-group">
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default"
+                data-dismiss="modal">닫기</button>
+              <button class='btn' type="submit" @click.prevent="addArticle">예약</button>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
       <div class="row">
         <div class="col-md-12">
-          <h1>ruby-korea advent calendar 2015</h1>
-          <button class='btn btn-default' v-if='!newArticle.username' @click='login'>login</button>
-          <button class='btn btn-default' v-if='newArticle.username'
-            data-toggle="tooltip" data-placement="bottom" title="로그아웃" @click='logout'>
-            <img :src='newArticle.profileImageURL' class="img-circle" width='20' height='20'>
-            {{newArticle.username}}
-          </button>
-
+          <header>
+            <h1>advent calendar 2015</h1>
+            <h4>for <cide>RUBY KOREA</cide></h4>
+            <button class='btn btn-default' v-if='!newArticle.username' @click='login'>login</button>
+            <button class='btn btn-default' v-if='newArticle.username'
+              data-toggle="tooltip" data-placement="bottom" title="로그아웃" @click='logout'>
+              <img :src='newArticle.profileImageURL' class="img-circle" width='20' height='20'>
+              {{newArticle.username}}
+            </button>
+          </header>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
           <table class="table table-bordered">
             <thead>
               <tr>
-                <th>일</th>
-                <th>월</th>
-                <th>화</th>
-                <th>수</th>
-                <th>목</th>
-                <th>금</th>
-                <th>토</th>
+                <th>Sun</th>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+                <th>Fri</th>
+                <th>Sat</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if='!loading' v-for='week in weeks'>
-                <td v-for='day in week'>
-                  {{day.day}}<br>
+                <td v-for='day in week' :class='{active: day.day < 26}'>
+                  <div class='date'>{{day.day}}</div>
                   <div v-if='day.article && !day.editing'>
                     <img :src='day.article.profileImageURL' class="pull-left" width='16' height='16'>
-                    {{day.article.username}}<br>
+                    {{day.article.username}}
+                    <br>
                     <a v-if='day.article.url' :href="day.article.url">{{day.article.title}}</a>
-                    <span v-if='!day.article.url'>{{day.article.title}}</span><br>
-                    <button class="btn btn-warning" v-if='day.editabled' @click='day.editing = true'>
-                      <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                    </button>
-                    <button class="btn btn-danger" v-if='day.editabled' @click="removeArticle(day.article.id)">
-                      <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </button>
+                    <span v-if='!day.article.url'>{{day.article.title}}</span>
+                    <a href="#" class="glyphicon glyphicon-edit" aria-hidden="true"
+                      v-if='day.editabled' @click.prevent='day.editing = true'></a>
+                    <a href="#" class="glyphicon glyphicon-remove"
+                      aria-hidden="true" v-if='day.editabled'
+                      @click.prevent="removeArticle(day.article.id)"></a>
                   </div>
                   <form id="form" v-if='day.editing' v-on:submit.prevent="editArticle">
                     <div class="form-group">
-                      <input class="form-control" v-model="day.article.title">
+                      <input class="form-control" v-model="day.article.title"
+                      placeholder="제목">
+                      <input class="form-control" v-model="day.article.url"
+                      placeholder="URL">
+                      <button class="btn" v-if='day.editabled' @click='editArticle(day)'>
+                        고치기
+                      </button>
                     </div>
-                    <div class="form-group">
-                      <input class="form-control" v-model="day.article.url">
-                    </div>
-                    <button class="btn btn-primary" v-if='day.editabled' @click='editArticle(day)'>
-                      <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                    </button>
                   </form>
 
-                  <button class="btn btn-primary" v-if='newArticle.username && day.enabled' @click='newArticle.day = day.day'>참가</button>
+                  <div class="form-group">
+                    <button class="btn" v-if='newArticle.username && day.enabled'
+                      @click='newArticle.day = day.day' data-toggle="modal"
+                      data-target="#newArticle">예약</button>
+                  <div>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-      </div>
-      <div class="row">
-        <div class="col-md-2"></div>
-        <div class="col-md-8">
-          <form id="form" class='form-horizontal' v-if="newArticle.day != 0" v-on:submit.prevent="addArticle">
-            <div class="form-group">
-              <h5>{{newArticle.day}}일의 글</h5>
-            </div>
-            <div class="form-group">
-              <label>제목</label>
-              <input class="form-control" v-model="newArticle.title" placeholder="미정">
-            </div>
-            <div class="form-group">
-              <label>주소</label>
-              <input class="form-control" v-model="newArticle.url" placeholder="url: http://example.com">
-            </div>
-            <div class="form-group">
-              <button class='btn btn-primary' type="submit">Add Article</button>
-            </div>
-            <ul class="errors">
-              <li v-show="!validation.title">제목을 입력하세요.</li>
-            </ul>
-          </form>
-        </div>
-        <div class="col-md-2"></div>
       </div>
     </div>
 

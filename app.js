@@ -102,6 +102,7 @@ var app = new Vue({
     addArticle: function () {
       if (this.isValid) {
         Articles.push(this.newArticle)
+        $('#newArticle').modal('hide')
         this.newArticle.day = 0
         this.newArticle.url = ''
         this.newArticle.title = ''
