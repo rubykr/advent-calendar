@@ -1,6 +1,12 @@
-var baseURL = 'https://sweltering-torch-2616.firebaseIO.com/'
-var year = 2015
-var project = 'ruby-korea'
+const baseURL = 'https://sweltering-torch-2616.firebaseIO.com/'
+const year = 2015
+const project = 'ruby-korea'
+const weeks = [
+  [29, 30, 1, 2, 3, 4, 5],
+  [6, 7, 8, 9, 10, 11, 12],
+  [13, 14, 15, 16, 17, 18, 19],
+  [20, 21, 22, 23, 24, 25, 26],
+]
 
 /**
  * Setup firebase sync
@@ -34,13 +40,10 @@ Articles.on('child_removed', function (snapshot) {
 
 var app = new Vue({
 
-  // element to mount to
   el: '#app',
 
-  // initial data
   data: {
-    loading: false,
-    // loading: true,
+    loading: true,
     articles: [],
     newArticle: {
       username: username,
@@ -51,16 +54,9 @@ var app = new Vue({
     }
   },
 
-  // computed property for form validation state
   computed: {
     weeks: function () {
       var returns = []
-      const weeks = [
-        [29, 30, 1, 2, 3, 4, 5],
-        [6, 7, 8, 9, 10, 11, 12],
-        [13, 14, 15, 16, 17, 18, 19],
-        [20, 21, 22, 23, 24, 25, 26],
-      ]
       for (var i = 0, l = weeks.length; i < l; i++) {
         var week = weeks[i]
         var weekData = []
@@ -97,7 +93,6 @@ var app = new Vue({
     }
   },
 
-  // methods
   methods: {
     addArticle: function () {
       if (this.isValid) {
@@ -118,11 +113,12 @@ var app = new Vue({
     },
     login: function () {
       var ref = new Firebase(baseURL)
-      var that = this;
+      var that = this
       ref.authWithOAuthPopup("github", function(error, authData) {
         if (error) {
           console.log("Login Failed!", error)
         } else {
+          this.loading = false
           localStorage.setItem("username", authData.github.username)
           localStorage.setItem("profileImageURL", authData.github.profileImageURL)
           that.newArticle.username = authData.github.username
