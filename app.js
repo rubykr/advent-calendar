@@ -1,38 +1,33 @@
-const baseURL = 'https://sweltering-torch-2616.firebaseIO.com/'
-const year = 2015
-const project = 'ruby-korea'
-const weeks = [
-  [29, 30, 1, 2, 3, 4, 5],
-  [6, 7, 8, 9, 10, 11, 12],
-  [13, 14, 15, 16, 17, 18, 19],
-  [20, 21, 22, 23, 24, 25, 26],
-]
+"use strict";
+
+var baseURL = "https://sweltering-torch-2616.firebaseIO.com/";
+var year = 2015;
+var _weeks = [[29, 30, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10, 11, 12], [13, 14, 15, 16, 17, 18, 19], [20, 21, 22, 23, 24, 25, 26]];
 
 /**
  * Setup firebase sync
  */
-var username = localStorage.getItem("username")
-var profileImageURL = localStorage.getItem("profileImageURL")
+var username = localStorage.getItem("username");
+var profileImageURL = localStorage.getItem("profileImageURL");
 
+var Articles = new Firebase(baseURL + year + "/articles");
 
-var Articles = new Firebase(baseURL + year + '/articles')
+Articles.on("child_added", function (snapshot) {
+  var item = snapshot.val();
+  item.id = snapshot.key();
+  app.articles.push(item);
+  app.loading = false;
+});
 
-Articles.on('child_added', function (snapshot) {
-  var item = snapshot.val()
-  item.id = snapshot.key()
-  app.articles.push(item)
-  app.loading = false
-})
-
-Articles.on('child_removed', function (snapshot) {
-  var id = snapshot.key()
+Articles.on("child_removed", function (snapshot) {
+  var id = snapshot.key();
   app.articles.some(function (article) {
     if (article.id === id) {
-      app.articles.$remove(article)
-      return true
+      app.articles.$remove(article);
+      return true;
     }
-  })
-})
+  });
+});
 
 /**
  * Create Vue app
@@ -40,7 +35,7 @@ Articles.on('child_removed', function (snapshot) {
 
 var app = new Vue({
 
-  el: '#app',
+  el: "#app",
 
   data: {
     loading: true,
@@ -49,88 +44,93 @@ var app = new Vue({
       username: username,
       profileImageURL: profileImageURL,
       day: 0,
-      url: '',
-      title: ''
+      url: "",
+      title: ""
     }
   },
 
   computed: {
-    weeks: function () {
-      var returns = []
-      for (var i = 0, l = weeks.length; i < l; i++) {
-        var week = weeks[i]
-        var weekData = []
-        var that = this
-        for (var k = 0, m = week.length; k < m; k++) {
-          var day = week[k]
-          var article = this.articles.find(function (article){
-            return article.day === day
-          })
-          var enabled = (day < 26 && !article)
-          var editabled = article && that.newArticle.username === article.username
+    weeks: function weeks() {
+      var _this = this;
+
+      var returns = [];
+      for (var i = 0, l = _weeks.length; i < l; i++) {
+        var week = _weeks[i];
+        var weekData = [];
+
+        var _loop = function _loop(k, m) {
+          var day = week[k];
+          var article = _this.articles.find(function (article) {
+            return article.day === day;
+          });
+          var enabled = day < 26 && !article;
+          var editabled = article && _this.newArticle.username === article.username;
           weekData.push({
             day: day,
             article: article,
             enabled: enabled,
             editabled: editabled,
             editing: false
-          })
+          });
+        };
+
+        for (var k = 0, m = week.length; k < m; k++) {
+          _loop(k, m);
         }
-        returns.push(weekData)
+        returns.push(weekData);
       }
-      return returns
+      return returns;
     },
-    validation: function () {
+    validation: function validation() {
       return {
         title: !!this.newArticle.title.trim()
-      }
+      };
     },
-    isValid: function () {
-      var validation = this.validation
+    isValid: function isValid() {
+      var validation = this.validation;
       return Object.keys(validation).every(function (key) {
-        return validation[key]
-      })
+        return validation[key];
+      });
     }
   },
 
   methods: {
-    addArticle: function () {
+    addArticle: function addArticle() {
       if (this.isValid) {
-        Articles.push(this.newArticle)
-        $('#newArticle').modal('hide')
-        this.newArticle.day = 0
-        this.newArticle.url = ''
-        this.newArticle.title = ''
+        Articles.push(this.newArticle);
+        $("#newArticle").modal("hide");
+        this.newArticle.day = 0;
+        this.newArticle.url = "";
+        this.newArticle.title = "";
       }
     },
-    editArticle: function (day) {
-      new Firebase(baseURL + year + '/articles/' + day.article.id).update(day.article)
-      this.loading = true
-      day.editing = false
+    editArticle: function editArticle(day) {
+      new Firebase(baseURL + year + "/articles/" + day.article.id).update(day.article);
+      this.loading = true;
+      day.editing = false;
     },
-    removeArticle: function (id) {
-      new Firebase(baseURL + year + '/articles/' + id).remove()
+    removeArticle: function removeArticle(id) {
+      new Firebase(baseURL + year + "/articles/" + id).remove();
     },
-    login: function () {
-      var ref = new Firebase(baseURL)
-      var that = this
-      ref.authWithOAuthPopup("github", function(error, authData) {
-        if (error) {
-          console.log("Login Failed!", error)
-        } else {
-          this.loading = false
-          localStorage.setItem("username", authData.github.username)
-          localStorage.setItem("profileImageURL", authData.github.profileImageURL)
-          that.newArticle.username = authData.github.username
-          that.newArticle.profileImageURL = authData.github.profileImageURL
+    login: function login() {
+      var _this2 = this;
+
+      var ref = new Firebase(baseURL);
+      ref.authWithOAuthPopup("github", function (error, authData) {
+        if (!error) {
+          localStorage.setItem("username", authData.github.username);
+          localStorage.setItem("profileImageURL", authData.github.profileImageURL);
+          _this2.loading = false;
+          _this2.newArticle.username = authData.github.username;
+          _this2.newArticle.profileImageURL = authData.github.profileImageURL;
         }
-      })
+      });
     },
-    logout: function () {
-      localStorage.setItem("username", '')
-      localStorage.setItem("profileImageURL", '')
-      location.reload(true)
+    logout: function logout() {
+      localStorage.setItem("username", "");
+      localStorage.setItem("profileImageURL", "");
+      location.reload(true);
     }
   }
-})
-$('[data-toggle="tooltip"]').tooltip()
+});
+$("[data-toggle=\"tooltip\"]").tooltip();
