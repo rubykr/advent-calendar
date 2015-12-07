@@ -4,6 +4,10 @@ body {
   font: 16px/18px 'HelveticaNeue';
 }
 
+a {
+  color: #ff4649;
+}
+
 #app header {
   color: #FFFFFF;
   border-color: #910002;
@@ -67,6 +71,7 @@ body {
 
 #app td.active img {
   margin-right: 8px;
+  border-radius: 10px;
 }
 
 #app td.active .date {
