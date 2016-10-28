@@ -1,0 +1,124 @@
+@import url(https://fonts.googleapis.com/css?family=Rochester|Coda);
+
+body {
+  font: 16px/18px 'HelveticaNeue';
+}
+
+a {
+  color: #ff4649;
+}
+
+#app header {
+  color: #FFFFFF;
+  border-color: #910002;
+  background: url("bg.png") #BC0003 no-repeat bottom right;
+  padding-top: 5px;
+  padding-left: 20px;
+  padding-bottom: 20px;
+  margin-top: 30px;
+}
+#app form {
+  background: #FFFFFF;
+}
+
+#app h1, #app h4 {
+  font-family: 'Rochester', cursive;
+}
+#app h1 {
+  font-size: 69px;
+  line-height: 50px;
+  margin-bottom: 15px;
+}
+#app h4 {
+  font-size: 22px;
+}
+#app h4 cide {
+  font-size: 25px;
+  font-family: 'Coda', cursive;
+}
+
+#app table {
+  width:100%;
+  border-color: #910002;
+}
+
+#app th {
+  width:14.3%;
+  color: #FFFFFF;
+  background-color: #910002;
+  border-color: #910002;
+}
+
+#app td {
+  color: #910002;
+  border-color: #910002;
+  background-color: #910002;
+  padding: 0;
+  height: 200px;
+}
+
+#app td.active {
+  color: #000000;
+  background-color: #FFFFFF;
+}
+
+#app td.active div {
+  padding: 8px;
+}
+#app td.active input {
+  margin-bottom: 4px;
+}
+
+#app td.active img {
+  margin-right: 8px;
+  border-radius: 10px;
+}
+
+#app td.active .date {
+  color: #FFFFFF;
+  border-color: #910002;
+  background: #BC0003;
+  padding: 4px 8px;
+}
+
+#app td button {
+  width: 100%;
+}
+
+header > button.btn {
+  color: #BC0003;
+  font-weight: bold;
+  border-radius: 20px;
+  border: none;
+}
+
+header > button.btn:hover {
+  color: #FFF;
+  font-weight: bold;
+  background-color: #e4999a;
+  -webkit-transition: ease-in 0.3s;
+  -moz-transition: ease-in 0.3s;
+  -o-transition: ease-in 0.3s;
+  transition: ease-in 0.3s;
+}
+div.form-group > button.btn {
+  font-weight: bold;
+  color: #FFF;
+  background: #BC0003;
+  border: none;
+  border-radius: 20px;
+}
+div.form-group > button.btn:hover, div.form-group > button.btn:active {
+  color: #FFF;
+  background: #910002;
+  border-radius: 20px;
+  -webkit-transition: ease-in 0.3s;
+  -moz-transition: ease-in 0.3s;
+  -o-transition: ease-in 0.3s;
+  transition: ease-in 0.3s;
+}
+.daynames {
+  font-size: 20px;
+  line-height: 18px;
+  font-family: 'Rochester', cursive;
+}
