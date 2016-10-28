@@ -1,45 +1,32 @@
 "use strict";
 
-const baseURL = "https://sweltering-torch-2616.firebaseIO.com/";
-const year = 2016;
-const weeks = [[27, 28, 29, 30, 1, 2, 3], [4, 5, 6, 7, 8, 9, 10], [11, 12, 13, 14, 15, 16, 17], [18, 19, 20, 21, 22, 23, 24], [25, 26, 27, 28, 29, 30, 31]];
+var baseURL = "https://sweltering-torch-2616.firebaseIO.com/";
+var year = 2016;
+var weeks = [[27, 28, 29, 30, 1, 2, 3], [4, 5, 6, 7, 8, 9, 10], [11, 12, 13, 14, 15, 16, 17], [18, 19, 20, 21, 22, 23, 24], [25, 26, 27, 28, 29, 30, 31]];
 
 /**
  * Setup firebase sync
  */
-const username = localStorage.getItem("username");
-const profileImageURL = localStorage.getItem("profileImageURL");
-
-const Articles = new Firebase(baseURL + year + "/articles");
-
-Articles.on("child_added", snapshot => {
-  const item = snapshot.val();
-  item.id = snapshot.key();
-  app.articles.push(item);
-  app.loading = false;
-});
-
-Articles.on("child_removed", snapshot => {
-  const id = snapshot.key();
-  app.articles.some(article => {
-    if (article.id === id) {
-      app.articles.$remove(article);
-      return true;
-    }
-  });
-});
+var username = localStorage.getItem("username");
+var profileImageURL = localStorage.getItem("profileImageURL");
+var Articles = new Firebase("" + baseURL + year + "/articles");
 
 /**
  * Create Vue app
  */
 
-const app = new Vue({
+var App = new Vue({
 
   el: "#app",
 
   data: {
     loading: true,
     articles: [],
+    weeks: weeks.map(function (week) {
+      return week.map(function (day) {
+        return { day: day, editing: false };
+      });
+    }),
     newArticle: {
       username: username,
       profileImageURL: profileImageURL,
@@ -50,41 +37,21 @@ const app = new Vue({
   },
 
   computed: {
-    weeks: function () {
-      const returns = [];
-      for (let i = 0, l = weeks.length; i < l; i++) {
-        const week = weeks[i];
-        const weekData = [];
-        for (let k = 0, m = week.length; k < m; k++) {
-          const day = week[k];
-          const article = this.articles.find(article => article.day === day);
-          const enabled = day < 26 && !article;
-          const editabled = article && this.newArticle.username === article.username;
-          weekData.push({
-            day: day,
-            article: article,
-            enabled: enabled,
-            editabled: editabled,
-            editing: false
-          });
-        }
-        returns.push(weekData);
-      }
-      return returns;
-    },
-    validation: function () {
+    validation: function validation() {
       return {
         title: !!this.newArticle.title.trim()
       };
     },
-    isValid: function () {
-      const validation = this.validation;
-      return Object.keys(validation).every(key => validation[key]);
+    isValid: function isValid() {
+      var validation = this.validation;
+      return Object.keys(validation).every(function (key) {
+        return validation[key];
+      });
     }
   },
 
   methods: {
-    addArticle: function () {
+    addArticle: function addArticle() {
       if (this.isValid) {
         Articles.push(this.newArticle);
         $("#newArticle").modal("hide");
@@ -93,31 +60,74 @@ const app = new Vue({
         this.newArticle.title = "";
       }
     },
-    editArticle: function (day) {
-      new Firebase(baseURL + year + "/articles/" + day.article.id).update(day.article);
+    getArticle: function getArticle(day) {
+      return this.articles.find(function (article) {
+        return article.day === day.day;
+      });
+    },
+    isEnabled: function isEnabled(day) {
+      return day.day < 26 && !this.getArticle(day);
+    },
+    isEditabled: function isEditabled(day) {
+      var article = this.getArticle(day);
+      return article && this.newArticle.username === article.username;
+    },
+    setDay: function setDay(day) {
+      this.newArticle.day = day.day;
+    },
+    editMode: function editMode(day) {
+      day.editing = true;
+    },
+    editArticle: function editArticle(day) {
+      var article = this.getArticle(day);
+      new Firebase("" + baseURL + year + "/articles/" + article.id).update(article);
       this.loading = true;
       day.editing = false;
     },
-    removeArticle: function (id) {
-      new Firebase(baseURL + year + "/articles/" + id).remove();
+    removeArticle: function removeArticle(day) {
+      var article = this.getArticle(day);
+      new Firebase("" + baseURL + year + "/articles/" + article.id).remove();
+      this.loading = true;
     },
-    login: function () {
-      const ref = new Firebase(baseURL);
-      ref.authWithOAuthPopup("github", (error, authData) => {
+    login: function login() {
+      var _this = this;
+
+      var ref = new Firebase(baseURL);
+      ref.authWithOAuthPopup("github", function (error, authData) {
         if (!error) {
           localStorage.setItem("username", authData.github.username);
           localStorage.setItem("profileImageURL", authData.github.profileImageURL);
-          this.loading = false;
-          this.newArticle.username = authData.github.username;
-          this.newArticle.profileImageURL = authData.github.profileImageURL;
+          _this.loading = false;
+          _this.newArticle.username = authData.github.username;
+          _this.newArticle.profileImageURL = authData.github.profileImageURL;
         }
       });
     },
-    logout: function () {
+
+    logout: function logout() {
       localStorage.setItem("username", "");
       localStorage.setItem("profileImageURL", "");
       location.reload(true);
     }
   }
 });
+
+Articles.on("child_added", function (snapshot) {
+  var item = snapshot.val();
+  item.id = snapshot.key();
+  App.articles.push(item);
+  App.loading = false;
+});
+
+Articles.on("child_removed", function (snapshot) {
+  var id = snapshot.key();
+  App.articles.some(function (article) {
+    if (article.id === id) {
+      App.articles.$remove(article);
+      App.loading = false;
+      return true;
+    }
+  });
+});
+
 $("[data-toggle=\"tooltip\"]").tooltip();

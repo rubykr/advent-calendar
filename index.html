@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Bootstrap core CSS -->
-    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="./app.css" rel="stylesheet" media="screen">
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -85,33 +85,33 @@
               <tr v-if='!loading' v-for='week in weeks'>
                 <td v-for='day in week' :class='{active: day.day < 26}'>
                   <div class='date'>{{day.day}}</div>
-                  <div v-if='day.article && !day.editing'>
-                    <img :src='day.article.profileImageURL' class="pull-left" width='16' height='16'>
-                    {{day.article.username}}
+                  <div v-if='getArticle(day) && !day.editing'>
+                    <img :src='getArticle(day).profileImageURL' class="pull-left" width='16' height='16'>
+                    {{getArticle(day).username}}
                     <br>
-                    <a v-if='day.article.url' :href="day.article.url">{{day.article.title}}</a>
-                    <span v-if='!day.article.url'>{{day.article.title}}</span>
+                    <a v-if='getArticle(day).url' :href="getArticle(day).url">{{getArticle(day).title}}</a>
+                    <span v-if='!getArticle(day).url'>{{getArticle(day).title}}</span>
                     <a href="#" class="glyphicon glyphicon-edit" aria-hidden="true"
-                      v-if='day.editabled' @click.prevent='day.editing = true'></a>
+                      v-if='isEditabled(day)' v-on:click.prevent='editMode(day)'></a>
                     <a href="#" class="glyphicon glyphicon-remove"
-                      aria-hidden="true" v-if='day.editabled'
-                      @click.prevent="removeArticle(day.article.id)"></a>
+                      aria-hidden="true" v-if='isEditabled(day)'
+                      v-on:click.prevent="removeArticle(day)"></a>
                   </div>
-                  <form id="form" v-if='day.editing' v-on:submit.prevent="editArticle">
+                  <form id="form" v-if='day.editing'>
                     <div class="form-group">
-                      <input class="form-control" v-model="day.article.title"
+                      <input class="form-control" v-model="getArticle(day).title"
                       placeholder="제목">
-                      <input class="form-control" v-model="day.article.url"
+                      <input class="form-control" v-model="getArticle(day).url"
                       placeholder="URL">
-                      <button class="btn" v-if='day.editabled' @click='editArticle(day)'>
+                      <button class="btn" v-on:click='editArticle(day)'>
                         고치기
                       </button>
                     </div>
                   </form>
 
                   <div class="form-group">
-                    <button class="btn" v-if='newArticle.username && day.enabled'
-                      @click='newArticle.day = day.day' data-toggle="modal"
+                    <button class="btn" v-if='newArticle.username && isEnabled(day)'
+                      v-on:click='setDay(day)' data-toggle="modal"
                       data-target="#newArticle">예약</button>
                   <div>
                 </td>
@@ -125,9 +125,9 @@
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="//cdn.firebase.com/js/client/2.3.1/firebase.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/vue/1.0.8/vue.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/vue/2.0.3/vue.min.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>

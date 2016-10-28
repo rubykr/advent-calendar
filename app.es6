@@ -14,38 +14,20 @@ const weeks = [
  */
 const username = localStorage.getItem("username")
 const profileImageURL = localStorage.getItem("profileImageURL")
-
-
-const Articles = new Firebase(baseURL + year + "/articles")
-
-Articles.on("child_added", (snapshot) => {
-  const item = snapshot.val()
-  item.id = snapshot.key()
-  app.articles.push(item)
-  app.loading = false
-})
-
-Articles.on("child_removed", (snapshot) => {
-  const id = snapshot.key()
-  app.articles.some((article) => {
-    if (article.id === id) {
-      app.articles.$remove(article)
-      return true
-    }
-  })
-})
+const Articles = new Firebase(`${baseURL}${year}/articles`)
 
 /**
  * Create Vue app
  */
 
-const app = new Vue({
+const App = new Vue({
 
   el: "#app",
 
   data: {
     loading: true,
     articles: [],
+    weeks: weeks.map(week => week.map(day => ({ day: day, editing: false }))),
     newArticle: {
       username: username,
       profileImageURL: profileImageURL,
@@ -56,41 +38,19 @@ const app = new Vue({
   },
 
   computed: {
-    weeks: function () {
-      const returns = []
-      for (let i = 0, l = weeks.length; i < l; i++) {
-        const week = weeks[i]
-        const weekData = []
-        for (let k = 0, m = week.length; k < m; k++) {
-          const day = week[k]
-          const article = this.articles.find((article) => article.day === day)
-          const enabled = (day < 26 && !article)
-          const editabled = article && this.newArticle.username === article.username
-          weekData.push({
-            day: day,
-            article: article,
-            enabled: enabled,
-            editabled: editabled,
-            editing: false
-          })
-        }
-        returns.push(weekData)
-      }
-      return returns
-    },
-    validation: function () {
+    validation() {
       return {
         title: !!this.newArticle.title.trim()
       }
     },
-    isValid: function () {
+    isValid() {
       const validation = this.validation
       return Object.keys(validation).every((key) => validation[key])
     }
   },
 
   methods: {
-    addArticle: function () {
+    addArticle() {
       if (this.isValid) {
         Articles.push(this.newArticle)
         $("#newArticle").modal("hide")
@@ -99,15 +59,35 @@ const app = new Vue({
         this.newArticle.title = ""
       }
     },
-    editArticle: function (day) {
-      new Firebase(baseURL + year + "/articles/" + day.article.id).update(day.article)
+    getArticle(day) {
+      return this.articles.find((article) => article.day === day.day)
+    },
+    isEnabled(day) {
+      return day.day < 26 && !this.getArticle(day)
+    },
+    isEditabled(day) {
+      const article = this.getArticle(day)
+      return article && this.newArticle.username === article.username
+    },
+    setDay(day) {
+      this.newArticle.day = day.day
+    },
+    editMode(day) {
+      day.editing = true
+    },
+    editArticle(day) {
+      const article = this.getArticle(day)
+      new Firebase(`${baseURL}${year}/articles/${article.id}`)
+        .update(article)
       this.loading = true
       day.editing = false
     },
-    removeArticle: function (id) {
-      new Firebase(baseURL + year + "/articles/" + id).remove()
+    removeArticle(day) {
+      const article = this.getArticle(day)
+      new Firebase(`${baseURL}${year}/articles/${article.id}`).remove()
+      this.loading = true
     },
-    login: function () {
+    login() {
       const ref = new Firebase(baseURL)
       ref.authWithOAuthPopup("github", (error, authData) => {
         if (!error) {
@@ -126,4 +106,23 @@ const app = new Vue({
     }
   }
 })
+
+Articles.on("child_added", (snapshot) => {
+  const item = snapshot.val()
+  item.id = snapshot.key()
+  App.articles.push(item)
+  App.loading = false
+})
+
+Articles.on("child_removed", (snapshot) => {
+  const id = snapshot.key()
+  App.articles.some((article) => {
+    if (article.id === id) {
+      App.articles.$remove(article)
+      App.loading = false
+      return true
+    }
+  })
+})
+
 $("[data-toggle=\"tooltip\"]").tooltip()
