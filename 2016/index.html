@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <title>ruby-korea advent calendar 2016</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap core CSS -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="./app.css" rel="stylesheet" media="screen">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.js"></script>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <a href="https://github.com/ruby-korea/advent-calendar"><img style="position: absolute; top: 0; right: 0; border: 0;z-index: 1" src="//camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="//s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+    <div id="app" class="container">
+      <div class="modal fade" id="newArticle">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h3 class="modal-title">{{newArticle.day}}일의 글</h3>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-5 col-md-offset-2">
+                  <form id="form" class='form form-horizontal'>
+                    <div class="form-group">
+                      <label>제목</label>
+                      <input class="form-control" v-model="newArticle.title" placeholder="미정">
+                    </div>
+                    <ul class="errors">
+                      <li v-show="!validation.title">제목은 꼭 넣어주세요.</li>
+                    </ul>
+                    <div class="form-group">
+                      <label>주소</label>
+                      <input class="form-control" v-model="newArticle.url" placeholder="url: http://example.com">
+                    </div>
+                    <div class="form-group">
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default"
+                data-dismiss="modal">닫기</button>
+              <button class='btn' type="submit" @click.prevent="addArticle">예약</button>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+      <div class="row">
+        <div class="col-md-12">
+          <header>
+            <h1>Advent Calendar 2016</h1>
+            <h4>for <cide>RUBY KOREA</cide></h4>
+            <button class='btn btn-default' v-if='!newArticle.username' @click='login'>login</button>
+            <button class='btn btn-default' v-if='newArticle.username'
+              data-toggle="tooltip" data-placement="bottom" title="로그아웃" @click='logout'>
+              <img :src='newArticle.profileImageURL' class="img-circle" width='20' height='20'>
+              {{newArticle.username}}
+            </button>
+          </header>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <table class="table table-bordered">
+            <thead class="daynames">
+              <tr>
+                <th>Sun</th>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+                <th>Fri</th>
+                <th>Sat</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if='!loading' v-for='week in weeks'>
+                <td v-for='day in week' :class='{active: day.day < 26}'>
+                  <div class='date'>{{day.day}}</div>
+                  <div v-if='getArticle(day) && !day.editing'>
+                    <img :src='getArticle(day).profileImageURL' class="pull-left" width='16' height='16'>
+                    {{getArticle(day).username}}
+                    <br>
+                    <a v-if='getArticle(day).url' :href="getArticle(day).url">{{getArticle(day).title}}</a>
+                    <span v-if='!getArticle(day).url'>{{getArticle(day).title}}</span>
+                    <a href="#" class="glyphicon glyphicon-edit" aria-hidden="true"
+                      v-if='isEditabled(day)' v-on:click.prevent='editMode(day)'></a>
+                    <a href="#" class="glyphicon glyphicon-remove"
+                      aria-hidden="true" v-if='isEditabled(day)'
+                      v-on:click.prevent="removeArticle(day)"></a>
+                  </div>
+                  <form id="form" v-if='day.editing'>
+                    <div class="form-group">
+                      <input class="form-control" v-model="getArticle(day).title"
+                      placeholder="제목">
+                      <input class="form-control" v-model="getArticle(day).url"
+                      placeholder="URL">
+                      <button class="btn" v-on:click='editArticle(day)'>
+                        고치기
+                      </button>
+                    </div>
+                  </form>
+
+                  <div class="form-group">
+                    <button class="btn" v-if='newArticle.username && isEnabled(day)'
+                      v-on:click='setDay(day)' data-toggle="modal"
+                      data-target="#newArticle">예약</button>
+                  <div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="//cdn.firebase.com/js/client/2.3.1/firebase.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/vue/2.0.3/vue.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
